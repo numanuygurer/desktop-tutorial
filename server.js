@@ -24,7 +24,7 @@ app.post("/start-call", async (req, res) => {
 
     console.log("➡️ Webhook'a gönderiliyor...");
 
-    const webhookUrl = "https://8fso0gvh.rcsrv.net/webhook-test/call-summary";
+    const webhookUrl = "https://8fso0gvh.rcsrv.net/webhook/call-summary";
 
     const response = await fetch(webhookUrl, {
       method: "POST",
