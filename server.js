@@ -6,12 +6,12 @@ import { WebSocket } from "ws";
 const app = express();
 app.use(bodyParser.json());
 
-// API Keys
-const GPT_API_KEY = "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";
-const ZADARMA_SIP_LOGIN = "183746";
-const ZADARMA_SIP_PASS = "0Mgp0ENypB";
+// Ortam değişkenlerinden keyleri al
+const GPT_API_KEY = process.env.GPT_API_KEY;
+const ZADARMA_SIP_LOGIN = process.env.ZADARMA_SIP_LOGIN;
+const ZADARMA_SIP_PASS = process.env.ZADARMA_SIP_PASS;
 const ZADARMA_SIP_SERVER = "sip.zadarma.com";
-const N8N_WEBHOOK_URL = "https://8fso0gvh.rcsrv.net/webhook/call-summary";
+const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL;
 
 // Çağrı başlatma endpointi
 app.post("/start-call", async (req, res) => {
@@ -19,27 +19,25 @@ app.post("/start-call", async (req, res) => {
   console.log(`📞 Çağrı başlatılıyor: ${name} - ${phone}`);
 
   try {
-    // Zadarma üzerinden SIP çağrısını başlat
-    // (Burada basit bir websocket simülasyonu ile ilerliyoruz)
+    // Zadarma SIP WebSocket bağlantısı
     const ws = new WebSocket(`wss://${ZADARMA_SIP_SERVER}/rtp`, {
       headers: { login: ZADARMA_SIP_LOGIN, password: ZADARMA_SIP_PASS }
     });
 
     ws.on("open", () => {
       console.log("✅ Zadarma ile bağlantı kuruldu.");
-      // Çağrı başlatma isteği
       ws.send(JSON.stringify({ action: "call", number: phone }));
     });
 
     ws.on("message", async (data) => {
       const msg = data.toString();
-      console.log("🔊 Gelen ses verisi:", msg.length);
+      console.log("🔊 Gelen ses datası uzunluğu:", msg.length);
 
-      // STT (Whisper)
+      // STT (Whisper Realtime)
       const sttResponse = await fetch("https://api.openai.com/v1/audio/transcriptions", {
         method: "POST",
         headers: { "Authorization": `Bearer ${GPT_API_KEY}` },
-        body: msg // RTP'den gelen ses
+        body: msg // RTP ses datası
       });
       const sttData = await sttResponse.json();
       const userText = sttData.text;
@@ -84,7 +82,7 @@ app.post("/start-call", async (req, res) => {
       const summary = `Müşteri ${name} (${phone}) ile görüşme tamamlandı.`;
       const meeting = "Salı 15:00";
 
-      // n8n Webhook’una sonuç gönder
+      // n8n Webhook’una gönder
       await fetch(N8N_WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -99,7 +97,7 @@ app.post("/start-call", async (req, res) => {
   }
 });
 
-// Render için port
+// Render port
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Call bot server aktif (port ${PORT})`);
