@@ -1,35 +1,27 @@
 import express from "express";
 import bodyParser from "body-parser";
+import fetch from "node-fetch";
 
 const app = express();
 app.use(bodyParser.json());
 
-const PORT = process.env.PORT || 3000;
-
-// Test endpoint
-app.get("/", (req, res) => {
-  res.send("Server çalışıyor ✅");
-});
-
-// n8n için webhook'a veri gönderen endpoint
 app.post("/start-call", async (req, res) => {
   const { phone, name } = req.body;
-  console.log("Gelen veri:", { phone, name });
+  console.log(`Arama başlatılıyor: ${name} - ${phone}`);
 
-  // Sahte sonuçlar
   const summary = `Müşteri ${name} (${phone}) ile görüşme tamamlandı.`;
   const meeting = "Salı 15:00";
 
-  // Test amaçlı yanıt döndür
-  res.json({
-    status: "Arama başlatıldı",
-    phone,
-    name,
-    summary,
-    meeting
+  // n8n webhook’una gönder
+  await fetch("https://8fso0gvh.rcsrv.net/webhook-test/call-summary", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone, summary, meeting })
   });
+
+  res.json({ status: "Arama başlatıldı", phone });
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ Server çalışıyor: http://localhost:${PORT}`);
+app.listen(process.env.PORT || 10000, () => {
+  console.log("Call bot server çalışıyor");
 });
