@@ -30,3 +30,9 @@ app.post("/start-call", async (req, res) => {
     res.status(500).json({ error: "Webhook gönderilemedi" });
   }
 });
+
+// Render'ın doğru çalışması için PORT ayarı
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Call bot server çalışıyor (port ${PORT})`);
+});
