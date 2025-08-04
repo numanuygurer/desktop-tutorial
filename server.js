@@ -16,7 +16,7 @@ app.post("/start-call", async (req, res) => {
 
     console.log("Webhook'a gönderiliyor...");
 
-    const response = await fetch("https://8fso0gvh.rcsrv.net/webhook/call-summary", {
+    const response = await fetch("https://8fso0gvh.rcsrv.net/webhook-test/call-summary", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ phone, summary, meeting })
