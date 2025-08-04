@@ -13,7 +13,7 @@ app.post("/start-call", async (req, res) => {
   const meeting = "Salı 15:00";
 
   // n8n webhook’una gönder
-  await fetch("https://8fso0gvh.rcsrv.net/webhook-test/call-summary", {
+  await fetch("https://8fso0gvh.rcsrv.net/webhook/call-summary", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phone, summary, meeting })
